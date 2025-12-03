@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, Link as LinkIcon, ExternalLink, Plus, Copy, CheckCircle, ShieldAlert, User, Clock, MessageSquare, Zap, Sparkles, Crown, CheckSquare, Square } from 'lucide-react';
+import { Trash2, Link as LinkIcon, ExternalLink, Plus, Copy, CheckCircle, ShieldAlert, User, Clock, MessageSquare, Zap, Sparkles, Crown, CheckSquare, Square, Ticket } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, collection, addDoc, updateDoc, onSnapshot, deleteDoc, doc, query, orderBy, serverTimestamp } from 'firebase/firestore';
@@ -160,33 +160,51 @@ export default function BingoExchangeApp() {
   // --- DESIGN COMPONENTS ---
   const Background = () => (
     <div className="fixed inset-0 z-[-1] bg-slate-950">
-      <div className="absolute top-[-10%] left-[-20%] w-[80%] h-[80%] rounded-full bg-purple-900/20 blur-[100px]" />
-      <div className="absolute bottom-[-10%] right-[-20%] w-[60%] h-[60%] rounded-full bg-indigo-900/20 blur-[100px]" />
+      <div className="absolute top-[-10%] left-[-20%] w-[80%] h-[80%] rounded-full bg-purple-900/10 blur-[120px]" />
+      <div className="absolute bottom-[-10%] right-[-20%] w-[60%] h-[60%] rounded-full bg-blue-900/10 blur-[120px]" />
     </div>
   );
 
   // --- RENDER ---
   return (
-    <div className="min-h-screen font-sans text-slate-100 pb-24 relative overflow-hidden">
+    <div className="min-h-screen font-sans text-slate-100 pb-24 relative overflow-x-hidden">
       <Background />
       
       {/* HEADER: Modern & Glassy */}
-      <header className="bg-slate-900/90 backdrop-blur-md border-b border-white/5 p-4 sticky top-0 z-20 shadow-2xl">
-        <div className="max-w-md mx-auto flex justify-between items-center">
-          <h1 className="text-lg font-black tracking-widest flex items-center gap-2 bg-gradient-to-r from-purple-200 to-white bg-clip-text text-transparent uppercase">
-            <span className="bg-purple-600 text-white p-1 rounded-md shadow-lg shadow-purple-500/50">
-                <Crown size={16} fill="white" />
-            </span>
-            OGNIB - CARDS DEALER
-          </h1>
-          <div className="text-[10px] font-bold tracking-wider uppercase bg-white/5 px-2 py-1 rounded-full text-slate-400 border border-white/5">
-            VIP Only
+      <header className="bg-slate-900/80 backdrop-blur-xl border-b border-white/5 p-4 sticky top-0 z-20 shadow-2xl">
+        <div className="max-w-md mx-auto flex items-center gap-4">
+          
+          {/* HERO IMAGE AVATAR - HIER DER FIX: Harte Inline-Styles für erzwungene Größe */}
+          <div className="relative group shrink-0">
+             <div 
+                className="rounded-2xl p-0.5 bg-gradient-to-br from-purple-500 via-pink-500 to-indigo-500 shadow-lg shadow-purple-500/20"
+                style={{ width: '160px', height: '100px', overflow: 'hidden', borderRadius: '12px' }} // Breiter und flacher
+             >
+                <img 
+                    src="/hero.jpg" 
+                    alt="Logo" 
+                    // Inline Styles zwingen das Bild in den Rahmen
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '10px' }}
+                    className="bg-slate-800 transition-transform duration-500 group-hover:scale-105"
+                    onError={(e) => e.target.style.display = 'none'}
+                />
+             </div>
+             <div className="absolute -bottom-2 -right-2 bg-slate-900 text-yellow-400 p-1.5 rounded-full border-2 border-slate-800 shadow-lg transform rotate-12">
+                <Crown size={20} strokeWidth={3} fill="currentColor" className="text-yellow-500" />
+             </div>
+          </div>
+
+          <div className="flex-1">
+            <h1 className="text-xl sm:text-2xl font-black tracking-widest bg-gradient-to-r from-purple-200 to-white bg-clip-text text-transparent uppercase leading-tight drop-shadow-sm">
+                OGNIB<br/>
+                <span className="text-sm sm:text-base text-purple-400 tracking-normal font-bold">CARDS DEALER</span>
+            </h1>
           </div>
         </div>
       </header>
 
       {/* FEEDBACK OVERLAY */}
-      <div className="max-w-md mx-auto px-4 mt-4 space-y-2 fixed top-20 left-0 right-0 z-30 pointer-events-none">
+      <div className="max-w-md mx-auto px-4 mt-4 space-y-2 fixed top-44 left-0 right-0 z-30 pointer-events-none">
         {error && (
           <div className="bg-red-500/90 backdrop-blur text-white p-3 rounded-xl text-sm shadow-xl animate-bounce pointer-events-auto border border-red-400/50 flex items-center gap-2">
             <ShieldAlert size={18} /> {error}
@@ -199,121 +217,130 @@ export default function BingoExchangeApp() {
         )}
       </div>
 
-      <main className="max-w-md mx-auto p-4 pt-4">
+      <main className="max-w-md mx-auto p-4 pt-6">
         
-        {/* GRID LAYOUT */}
-        <div className="grid grid-cols-1 sm:grid-cols-[1fr_120px] gap-4">
+        {loading && !user && (
+            <div className="flex flex-col items-center justify-center py-20 text-slate-500 gap-3">
+                <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        )}
+
+        {/* ADD VIEW */}
+        {view === 'add' && user && (
+        <div className="bg-slate-900/95 backdrop-blur-xl p-6 rounded-3xl shadow-2xl border border-white/10 animate-fade-in-up relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-yellow-500"></div>
             
-            {/* LINKE SPALTE */}
-            <div className="order-2 sm:order-1">
-                {loading && !user && (
-                    <div className="flex flex-col items-center justify-center py-20 text-slate-500 gap-3">
-                        <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-                    </div>
-                )}
-
-                {/* ADD VIEW */}
-                {view === 'add' && user && (
-                <div className="bg-slate-900/95 backdrop-blur-xl p-6 rounded-3xl shadow-2xl border border-white/10 animate-fade-in-up relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-yellow-500"></div>
-                    
-                    <h2 className="text-lg font-bold mb-6 text-white flex items-center gap-2">
-                        <Zap className="text-yellow-400 fill-yellow-400" size={20} />
-                        Neuen Drop teilen
-                    </h2>
-                    
-                    <div className="space-y-5">
-                    <div>
-                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Dein Name</label>
-                        <div className="relative group">
-                            <User size={18} className="absolute left-3 top-3.5 text-slate-500 group-focus-within:text-purple-400 transition-colors" />
-                            <input type="text" value={senderName} onChange={(e) => setSenderName(e.target.value)}
-                            placeholder="Gamer Tag" 
-                            className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none text-white placeholder-slate-600 transition-all" />
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Inhalt</label>
-                        <textarea 
-                        value={inputText}
-                        onChange={(e) => setInputText(e.target.value)}
-                        placeholder="Paste alles hier rein... Link + Nachricht"
-                        className="w-full p-4 bg-slate-950/50 border border-white/10 rounded-xl focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none text-white placeholder-slate-600 h-32 text-sm resize-none transition-all"
-                        />
-                    </div>
-
-                    <div className="flex gap-3 pt-2">
-                        <button onClick={() => setView('list')} className="flex-1 py-3 px-4 bg-slate-800 text-slate-300 rounded-xl font-bold hover:bg-slate-700 transition-colors">Zurück</button>
-                        <button onClick={handleAddLink} className="flex-1 py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold shadow-lg shadow-purple-900/40 hover:brightness-110 active:scale-95 transition-all">Posten</button>
-                    </div>
-                    </div>
+            <h2 className="text-lg font-bold mb-6 text-white flex items-center gap-2">
+                <Zap className="text-yellow-400 fill-yellow-400" size={20} />
+                Neuen Drop teilen
+            </h2>
+            
+            <div className="space-y-5">
+            <div>
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Dein Name</label>
+                <div className="relative group">
+                    <User size={18} className="absolute left-3 top-3.5 text-slate-500 group-focus-within:text-purple-400 transition-colors" />
+                    <input type="text" value={senderName} onChange={(e) => setSenderName(e.target.value)}
+                    placeholder="Gamer Tag" 
+                    className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none text-white placeholder-slate-600 transition-all" />
                 </div>
+            </div>
+
+            <div>
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Inhalt</label>
+                <textarea 
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder="Paste alles hier rein... Link + Nachricht"
+                className="w-full p-4 bg-slate-950/50 border border-white/10 rounded-xl focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none text-white placeholder-slate-600 h-32 text-sm resize-none transition-all"
+                />
+            </div>
+
+            <div className="flex gap-3 pt-2">
+                <button onClick={() => setView('list')} className="flex-1 py-3 px-4 bg-slate-800 text-slate-300 rounded-xl font-bold hover:bg-slate-700 transition-colors">Zurück</button>
+                <button onClick={handleAddLink} className="flex-1 py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold shadow-lg shadow-purple-900/40 hover:brightness-110 active:scale-95 transition-all">Posten</button>
+            </div>
+            </div>
+        </div>
+        )}
+
+        {/* LIST VIEW - NEUES CARD DESIGN */}
+        {view === 'list' && (
+        <div className="space-y-5">
+            {links.length === 0 && !loading && !error && (
+            <div className="text-center py-12 opacity-50 flex flex-col items-center">
+                <div className="bg-slate-800/50 p-4 rounded-full mb-3">
+                    <Ticket size={32} className="text-slate-600" />
+                </div>
+                <p className="text-slate-400 text-sm font-medium">Keine Drops verfügbar.</p>
+                <p className="text-xs text-slate-600 mt-1">Sei der Erste!</p>
+            </div>
+            )}
+            
+            {links.map((link) => (
+            <div 
+                key={link.id} 
+                className={`group relative rounded-2xl transition-all duration-300 overflow-hidden
+                    ${link.claimed 
+                        ? 'bg-slate-900/40 border border-slate-800/60 opacity-60 grayscale-[0.8] scale-[0.98]' 
+                        : 'bg-slate-900/80 backdrop-blur-xl border border-white/10 hover:border-purple-500/50 hover:shadow-[0_0_25px_rgba(168,85,247,0.15)] hover:-translate-y-1'
+                    }`}
+            >
+                {/* NEON BAR TOP (Nur für aktive) */}
+                {!link.claimed && (
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 opacity-80 shadow-[0_2px_10px_rgba(236,72,153,0.3)]"></div>
                 )}
 
-                {/* LIST VIEW */}
-                {view === 'list' && (
-                <div className="space-y-4">
-                    {links.length === 0 && !loading && !error && (
-                    <div className="text-center py-8 opacity-50">
-                        <p className="text-slate-400 text-sm">Keine Drops verfügbar. Sei der Erste!</p>
+                {/* BEDIENT STEMPEL */}
+                {link.claimed && (
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 opacity-60 -rotate-12 border-4 border-slate-600 text-slate-500 font-black text-4xl p-2 rounded-xl uppercase tracking-widest mix-blend-screen">
+                        Bedient
                     </div>
-                    )}
-                    
-                    {links.map((link) => (
-                    <div 
-                        key={link.id} 
-                        className={`group rounded-2xl p-4 border transition-all shadow-lg relative overflow-hidden
-                            ${link.claimed 
-                                ? 'bg-slate-900/40 border-slate-800/50 opacity-60 grayscale-[0.8] hover:opacity-100 hover:grayscale-0' 
-                                : 'bg-slate-900/60 backdrop-blur-md border-white/5 hover:border-purple-500/30 hover:shadow-purple-900/10'
-                            }`}
-                    >
-                        {/* BEDIENT STEMPEL */}
-                        {link.claimed && (
-                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 opacity-40 -rotate-12 border-4 border-green-500/50 text-green-500/50 font-black text-4xl p-2 rounded-xl uppercase tracking-widest">
-                                Bedient
-                            </div>
-                        )}
-                        
-                        {/* CARD HEADER */}
-                        <div className="flex justify-between items-start mb-3">
-                        <div className="flex items-center gap-2.5">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center border shadow-inner ${link.claimed ? 'bg-slate-800 border-slate-700' : 'bg-gradient-to-br from-slate-800 to-slate-900 border-white/10'}`}>
-                                <User size={14} className="text-slate-300" />
+                )}
+                
+                <div className="p-4 pt-5">
+                    {/* CARD HEADER */}
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="flex items-center gap-3">
+                            {/* Avatar Circle */}
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 shadow-inner 
+                                ${link.claimed ? 'bg-slate-800 border-slate-700' : 'bg-gradient-to-br from-slate-800 to-slate-900 border-purple-500/20 shadow-purple-900/20'}`}>
+                                <User size={18} className={link.claimed ? "text-slate-600" : "text-purple-300"} />
                             </div>
                             <div>
-                                <div className="font-bold text-sm text-slate-200 leading-tight">{link.sender}</div>
-                                <div className="text-[10px] text-slate-500 font-medium flex items-center gap-1">
-                                    {formatTime(link.createdAt)}
+                                <div className={`font-bold text-sm leading-tight flex items-center gap-2 ${link.claimed ? "text-slate-500" : "text-white"}`}>
+                                    {link.sender}
+                                    {!link.claimed && <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>}
+                                </div>
+                                <div className="text-[10px] text-slate-500 font-medium flex items-center gap-1 mt-0.5">
+                                    <Clock size={10} /> {formatTime(link.createdAt)}
                                 </div>
                             </div>
                         </div>
                         
                         {!link.note && !link.claimed && (
-                            <div className="text-[10px] font-mono bg-slate-950/50 px-2 py-1 rounded text-slate-500 border border-white/5">
+                            <div className="text-[10px] font-mono bg-slate-950/80 px-2 py-1 rounded text-purple-300 border border-purple-500/10">
                                 {getShortCode(link.url)}
                             </div>
                         )}
-                        </div>
+                    </div>
 
-                        {/* NOTE / MESSAGE AREA */}
-                        {link.note && (
-                        <div className="mb-4 relative pl-3">
-                            <div className={`absolute left-0 top-1 bottom-1 w-0.5 rounded-full ${link.claimed ? 'bg-slate-600' : 'bg-yellow-500/50'}`}></div>
-                            <p className={`text-sm italic leading-relaxed ${link.claimed ? 'text-slate-500 line-through decoration-slate-600/50' : 'text-slate-300'}`}>"{link.note}"</p>
-                        </div>
-                        )}
+                    {/* NOTE / MESSAGE AREA */}
+                    {link.note && (
+                    <div className={`mb-5 relative pl-4 border-l-2 ${link.claimed ? 'border-slate-700' : 'border-purple-500/50'}`}>
+                        <p className={`text-sm leading-relaxed ${link.claimed ? 'text-slate-500 line-through' : 'text-slate-200'}`}>"{link.note}"</p>
+                    </div>
+                    )}
 
-                        {/* ACTIONS */}
-                        <div className="flex gap-2.5">
+                    {/* ACTIONS */}
+                    <div className="flex gap-2">
                         
                         {/* CLAIM BUTTON / TOGGLE */}
                         <button 
                             onClick={() => handleToggleClaim(link.id, link.claimed)}
-                            className={`w-12 rounded-xl flex items-center justify-center transition-all border border-white/5
+                            className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all border border-white/5
                                 ${link.claimed 
-                                    ? 'bg-green-900/20 text-green-500 hover:bg-green-900/40 border-green-500/20' 
+                                    ? 'bg-slate-800/50 text-slate-600 hover:text-green-500' 
                                     : 'bg-slate-800 text-slate-400 hover:text-green-400 hover:bg-slate-700'}`}
                             title={link.claimed ? "Als offen markieren" : "Als bedient markieren"}
                         >
@@ -321,46 +348,24 @@ export default function BingoExchangeApp() {
                         </button>
 
                         <a href={link.url} target="_blank" rel="noopener noreferrer"
-                            className={`flex-1 py-3 rounded-xl font-bold text-sm text-center flex items-center justify-center gap-2 transition-all shadow-md
+                            className={`flex-1 h-12 rounded-xl font-bold text-sm text-center flex items-center justify-center gap-2 transition-all shadow-lg
                                 ${link.claimed 
-                                    ? 'bg-slate-800 text-slate-500 cursor-not-allowed shadow-none' 
-                                    : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white active:scale-95 shadow-indigo-900/30 hover:brightness-110'}`}
+                                    ? 'bg-slate-800 text-slate-600 cursor-not-allowed shadow-none' 
+                                    : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-500 hover:to-indigo-500 active:scale-[0.98] shadow-purple-900/30 ring-1 ring-white/10'}`}
                         >
-                            <ExternalLink size={16} strokeWidth={2.5} /> 
+                            <ExternalLink size={18} strokeWidth={2.5} /> 
                             {link.claimed ? 'Erledigt' : 'CLAIM'}
                         </a>
                         
-                        <button onClick={() => handleDelete(link.id)} className="bg-slate-800/50 text-slate-500 w-11 rounded-xl flex items-center justify-center hover:bg-red-500/20 hover:text-red-400 transition-colors border border-white/5">
+                        <button onClick={() => handleDelete(link.id)} className="h-12 w-12 rounded-xl flex items-center justify-center transition-colors text-slate-500 hover:bg-red-500/10 hover:text-red-400">
                             <Trash2 size={18} />
                         </button>
-                        </div>
-                    </div>
-                    ))}
-                </div>
-                )}
-            </div>
-
-            {/* RECHTE SPALTE (Gimmick) */}
-            <div className="order-1 sm:order-2 mb-4 sm:mb-0">
-                <div className="w-full h-32 sm:h-auto sm:aspect-[3/4] bg-slate-800 rounded-2xl overflow-hidden shadow-xl shadow-purple-900/20 border border-white/10 relative group sticky top-24">
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-900 to-slate-900 flex items-center justify-center">
-                        <Crown size={32} className="text-white/10" />
-                    </div>
-                    <img 
-                        src="/hero.jpg" 
-                        alt="Bingo King" 
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"
-                        onError={(e) => e.target.style.display = 'none'}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/50 to-transparent"></div>
-                    <div className="absolute bottom-3 left-3 right-3 text-center sm:text-left">
-                        <p className="text-purple-300 text-[10px] font-bold uppercase tracking-wider mb-1">Club Status</p>
-                        <h2 className="text-sm sm:text-base font-black text-white leading-tight drop-shadow-lg">Karten Dealer<br/>Aktiv</h2>
-                        <div className="mt-2 h-1 w-12 bg-purple-500 rounded-full mx-auto sm:mx-0"></div>
                     </div>
                 </div>
             </div>
+            ))}
         </div>
+        )}
 
       </main>
 
@@ -368,9 +373,9 @@ export default function BingoExchangeApp() {
       {view === 'list' && user && (
         <button 
           onClick={() => setView('add')}
-          className="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-2xl shadow-purple-600/40 flex items-center justify-center z-20 hover:scale-105 active:scale-90 transition-all border-2 border-white/20"
+          className="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-2xl shadow-purple-600/40 flex items-center justify-center z-20 hover:scale-105 active:scale-90 transition-all border-2 border-white/20 group"
         >
-          <Plus size={32} strokeWidth={2.5} />
+          <Plus size={32} strokeWidth={2.5} className="group-hover:rotate-90 transition-transform duration-300" />
         </button>
       )}
 
