@@ -1,0 +1,17 @@
+{
+    "headers": [
+      {
+        "source": "/manifest.json",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/manifest+json"
+          }
+        ]
+      }
+    ],
+    "rewrites": [
+      { "source": "/share", "destination": "/index.html" },
+      { "source": "/(.*)", "destination": "/index.html" }
+    ]
+  }

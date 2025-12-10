@@ -156,29 +156,40 @@ export default function BingoExchangeApp() {
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
 
-  useEffect(() => { if (senderName) localStorage.setItem('bingo_username', senderName); }, [senderName]);
-
-  // --- SHARE TARGET HANDLER ---
+  // --- SHARE TARGET HANDLER (NEU) ---
   useEffect(() => {
-    // Wenn die App über "Teilen" geöffnet wird, stehen die Daten in der URL
-    const params = new URLSearchParams(window.location.search);
-    const sharedText = params.get('text');
-    const sharedTitle = params.get('title');
-    const sharedUrl = params.get('url');
-
-    // Wir bauen den Inhalt zusammen
-    let content = '';
-    if (sharedUrl) content += sharedUrl;
-    if (sharedText) content += (content ? ' ' : '') + sharedText;
-    if (sharedTitle && !content.includes(sharedTitle)) content += (content ? '\n' : '') + sharedTitle;
-
-    if (content) {
-      setInputText(content);
-      setView('add');
-      // URL bereinigen, damit beim Neuladen nicht wieder der Text eingefügt wird
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
+    const handleSharedContent = () => {
+      // Prüfen der URL Parameter (sowohl von /share als auch von /)
+      const urlParams = new URLSearchParams(window.location.search);
+      
+      const sharedTitle = urlParams.get('title');
+      const sharedText = urlParams.get('text');
+      const sharedUrl = urlParams.get('url');
+      
+      let combinedText = '';
+      if (sharedTitle) combinedText += sharedTitle + '\n';
+      if (sharedText) combinedText += sharedText + '\n';
+      if (sharedUrl) combinedText += sharedUrl;
+      
+      combinedText = combinedText.trim();
+      
+      if (combinedText) {
+        console.log('[SHARE TARGET] Empfangen:', combinedText);
+        setInputText(combinedText);
+        setView('add');
+        
+        // URL bereinigen, damit beim Reload nicht nochmal gepostet wird
+        // Wir gehen zurück zur Root URL
+        window.history.replaceState({}, document.title, '/');
+        
+        showSuccess('Link empfangen! 🎯');
+      }
+    };
+    
+    handleSharedContent();
   }, []);
+
+  useEffect(() => { if (senderName) localStorage.setItem('bingo_username', senderName); }, [senderName]);
 
   useEffect(() => {
     const initAuth = async () => { try { await signInAnonymously(auth); } catch (e) { setError(`Login: ${e.code}`); } };
