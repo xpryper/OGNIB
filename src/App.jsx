@@ -174,22 +174,22 @@ export default function BingoExchangeApp() {
       <header className="bg-slate-900/80 backdrop-blur-xl border-b border-white/5 p-4 sticky top-0 z-20 shadow-2xl">
         <div className="max-w-md mx-auto flex items-center gap-4">
           
-          {/* HERO IMAGE AVATAR - HIER DER FIX: Harte Inline-Styles für erzwungene Größe */}
+          {/* HERO IMAGE AVATAR - HIER DAS OVAL (EI) */}
           <div className="relative group shrink-0">
              <div 
-                className="rounded-2xl p-0.5 bg-gradient-to-br from-purple-500 via-pink-500 to-indigo-500 shadow-lg shadow-purple-500/20"
-                style={{ width: '160px', height: '100px', overflow: 'hidden', borderRadius: '12px' }} // Breiter und flacher
+                className="p-0.5 bg-gradient-to-br from-purple-500 via-pink-500 to-indigo-500 shadow-lg shadow-purple-500/20"
+                style={{ width: '160px', height: '100px', overflow: 'hidden', borderRadius: '50%' }} // ECHTES OVAL
              >
                 <img 
                     src="/hero.jpg" 
                     alt="Logo" 
                     // Inline Styles zwingen das Bild in den Rahmen
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '10px' }}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     className="bg-slate-800 transition-transform duration-500 group-hover:scale-105"
                     onError={(e) => e.target.style.display = 'none'}
                 />
              </div>
-             <div className="absolute -bottom-2 -right-2 bg-slate-900 text-yellow-400 p-1.5 rounded-full border-2 border-slate-800 shadow-lg transform rotate-12">
+             <div className="absolute -bottom-1 -right-1 bg-slate-900 text-yellow-400 p-1.5 rounded-full border-2 border-slate-800 shadow-lg transform rotate-12">
                 <Crown size={20} strokeWidth={3} fill="currentColor" className="text-yellow-500" />
              </div>
           </div>
