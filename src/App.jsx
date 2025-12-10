@@ -158,6 +158,28 @@ export default function BingoExchangeApp() {
 
   useEffect(() => { if (senderName) localStorage.setItem('bingo_username', senderName); }, [senderName]);
 
+  // --- SHARE TARGET HANDLER ---
+  useEffect(() => {
+    // Wenn die App über "Teilen" geöffnet wird, stehen die Daten in der URL
+    const params = new URLSearchParams(window.location.search);
+    const sharedText = params.get('text');
+    const sharedTitle = params.get('title');
+    const sharedUrl = params.get('url');
+
+    // Wir bauen den Inhalt zusammen
+    let content = '';
+    if (sharedUrl) content += sharedUrl;
+    if (sharedText) content += (content ? ' ' : '') + sharedText;
+    if (sharedTitle && !content.includes(sharedTitle)) content += (content ? '\n' : '') + sharedTitle;
+
+    if (content) {
+      setInputText(content);
+      setView('add');
+      // URL bereinigen, damit beim Neuladen nicht wieder der Text eingefügt wird
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
   useEffect(() => {
     const initAuth = async () => { try { await signInAnonymously(auth); } catch (e) { setError(`Login: ${e.code}`); } };
     initAuth();
