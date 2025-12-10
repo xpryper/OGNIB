@@ -180,6 +180,14 @@ export default function BingoExchangeApp() {
 
   const filteredLinks = useMemo(() => showAll ? links : links.filter(l => !l.claimed), [links, showAll]);
 
+  const showSuccess = (msg) => { setSuccessMsg(msg); setTimeout(() => setSuccessMsg(''), 2500); };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text)
+      .then(() => showSuccess('Link kopiert!'))
+      .catch((err) => console.error("Fehler:", err));
+  };
+
   const handleAddLink = async () => {
     setError('');
     if (!senderName.trim()) return setError('Name fehlt!');
@@ -211,8 +219,6 @@ export default function BingoExchangeApp() {
         try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bingo_links', id)); } catch (err) {}
     }
   };
-
-  const showSuccess = (msg) => { setSuccessMsg(msg); setTimeout(() => setSuccessMsg(''), 2500); };
 
   const SkeletonCard = () => (
     <div className="rounded-2xl p-4 border border-white/5 bg-slate-900/40 backdrop-blur-sm animate-pulse h-40" />
