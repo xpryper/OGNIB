@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   Trash2, Link as LinkIcon, ExternalLink, Plus, Copy, 
   CheckCircle, ShieldAlert, User, Clock, Zap, Crown, 
@@ -10,12 +10,12 @@ import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, query, onS
 
 // --- CONFIG ---
 const firebaseConfig = {
-  apiKey: "AIzaSyDBLpnqJwRIe1PPKYEPdn0gpi0TbjbAbvY",
-  authDomain: "ognib-card.firebaseapp.com",
-  projectId: "ognib-card",
-  storageBucket: "ognib-card.firebasestorage.app",
-  messagingSenderId: "612697971698",
-  appId: "1:612697971698:web:6f488ab99214a229c0296b"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);
@@ -34,7 +34,7 @@ const Background = () => (
   </div>
 );
 
-const BingoCard = ({ link, onToggle, onDelete, onCopy }) => {
+const BingoCard = ({ link, onToggle, onDelete }) => {
   const isClaimed = link.claimed;
 
   const formatTime = (timestamp) => {
@@ -50,7 +50,7 @@ const BingoCard = ({ link, onToggle, onDelete, onCopy }) => {
       const u = new URL(url);
       const sub1 = u.searchParams.get('af_sub1');
       return sub1 ? `Code: ${sub1.substring(0, 6)}...` : 'Link';
-    } catch { return 'Link'; }
+    } catch (e) { return 'Link'; }
   };
 
   return (
@@ -155,6 +155,7 @@ export default function BingoExchangeApp() {
   const [view, setView] = useState('list');
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
+  const successTimeoutRef = useRef(null);
 
   // --- SHARE TARGET HANDLER (NEU) ---
   useEffect(() => {
@@ -213,7 +214,11 @@ export default function BingoExchangeApp() {
 
   const filteredLinks = useMemo(() => showAll ? links : links.filter(l => !l.claimed), [links, showAll]);
 
-  const showSuccess = (msg) => { setSuccessMsg(msg); setTimeout(() => setSuccessMsg(''), 2500); };
+  const showSuccess = (msg) => {
+    setSuccessMsg(msg);
+    if (successTimeoutRef.current) clearTimeout(successTimeoutRef.current);
+    successTimeoutRef.current = setTimeout(() => setSuccessMsg(''), 2500);
+  };
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text)
@@ -244,12 +249,12 @@ export default function BingoExchangeApp() {
   };
 
   const handleToggleClaim = async (id, currentStatus) => {
-    try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bingo_links', id), { claimed: !currentStatus }); } catch (err) {}
+    try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bingo_links', id), { claimed: !currentStatus }); } catch (err) { console.error('Toggle failed:', err); }
   };
 
   const handleDelete = async (id) => {
     if(window.confirm("Löschen?")) {
-        try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bingo_links', id)); } catch (err) {}
+        try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bingo_links', id)); } catch (err) { console.error('Delete failed:', err); }
     }
   };
 
@@ -351,7 +356,7 @@ export default function BingoExchangeApp() {
                         <button onClick={() => setShowAll(true)} className="text-purple-400 text-xs font-bold hover:underline">Erledigte anzeigen</button>
                     </div>
                 )}
-                {filteredLinks.map((link) => <BingoCard key={link.id} link={link} onToggle={handleToggleClaim} onDelete={handleDelete} onCopy={copyToClipboard} />)}
+                {filteredLinks.map((link) => <BingoCard key={link.id} link={link} onToggle={handleToggleClaim} onDelete={handleDelete} />)}
             </div>
         </>
         )}
